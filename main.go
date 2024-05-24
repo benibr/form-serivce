@@ -12,6 +12,7 @@ import (
 
 // globals
 var debug bool = false
+var email string = "braunger@madways.de"
 
 func debugFormData(r *http.Request) {
   fmt.Printf("DEBUG: Method: %v\n", r.Method)
@@ -21,6 +22,7 @@ func debugFormData(r *http.Request) {
 
 func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
+  email    = os.Getenv("FORM_SERVICE_EMAIL")
 }
 
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
@@ -38,7 +40,7 @@ func getPrettyFormData(v url.Values) (bytes.Buffer) {
 
 func sendmail(mb bytes.Buffer) {
   fmt.Println("Mail sent:")
-  fmt.Printf("%s", mb)
+  fmt.Println(mb.String())
 }
 
 // route handler
@@ -48,7 +50,7 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
     debugFormData(r)
   }
 
-  fmt.Println("Received form submission for default form\n")
+  fmt.Println("Received form submission for default form")
   r.ParseForm()
   formData := r.PostForm
   // if validateInput(formData) {
@@ -56,7 +58,7 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
   pretty := getPrettyFormData(formData)
   mailBody := pretty
   sendmail(mailBody)
-  io.WriteString(w, "\n")
+  io.WriteString(w, "You message has been sent! Thank you for writing to us.")
 }
 
 func main() {
