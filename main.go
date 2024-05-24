@@ -12,8 +12,9 @@ import (
 var debug bool = false
 
 func debugFormData(r *http.Request) {
+  fmt.Printf("DEBUG: Method: %v\n", r.Method)
   fmt.Print("DEBUG: Full form object:")
-  fmt.Printf("  %v\n\n", r)
+  fmt.Printf(" %v\n\n", r)
 }
 
 func getEnvConfig() {
@@ -25,6 +26,9 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
   if debug {
     debugFormData(r)
   }
+  r.ParseForm()
+  fmt.Println(r.PostForm)
+
   io.WriteString(w, "Form submitted, I promise!!\n")
 }
 
