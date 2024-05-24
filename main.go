@@ -40,20 +40,31 @@ func getPrettyFormData(v url.Values) (bytes.Buffer) {
 }
 
 func sendmail(body bytes.Buffer) {
-  smtp, err := smtp.Dial("mail.madways.de:25")
-  if err != nil {
-      fmt.Println(err)
-  }
-  defer smtp.Close()
-  smtp.Mail("forms@madways.de")
-  smtp.Rcpt(email)
-  smtpData, err := smtp.Data()
-  defer smtpData.Close()
-  if _, err = body.WriteTo(smtpData); err != nil {
-    fmt.Printf("%v", err)
-    //log.Fatal(err)
-  }
+  //smtp, err := smtp.Dial("mail.madways.de:25")
+  //if err != nil {
+  //    fmt.Println(err)
+  //}
+  //defer smtp.Close()
 
+  //
+  //smtp.Mail("forms@madways.de")
+  //smtp.Rcpt(email)
+
+  //smtpData, err := smtp.Data()
+  //defer smtpData.Close()
+  //
+
+  //if _, err = body.WriteTo(smtpData); err != nil {
+  //  fmt.Printf("%v", err)
+  //  //log.Fatal(err)
+  //}
+  rcpt := []string{email}
+  msg := []byte("To: recipient@example.net\r\n" +
+		"Subject: discount Gophers!\r\n" +
+		"\r\n" +
+		"This is the email body.\r\n")
+
+  smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", rcpt, msg)
   fmt.Println("Mail sent")
 }
 
