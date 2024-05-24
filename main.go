@@ -7,6 +7,7 @@ import (
   "io"
   "bytes"
   "net/http"
+  "net/url"
 )
 
 // globals
@@ -22,10 +23,11 @@ func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
 }
 
-func getPrettyFormData(r *http.Request) (bytes.Buffer) {
+func getPrettyFormData(v url.Values) (bytes.Buffer) {
   var buffer bytes.Buffer 
-  for key, value := range(r.PostForm) {
+  for key, value := range(v) {
     if debug {
+      // move this to debug funtion
       fmt.Print("Found form data: ")
       fmt.Printf("%v: %v\n", key, value)
     }
@@ -34,16 +36,27 @@ func getPrettyFormData(r *http.Request) (bytes.Buffer) {
   return buffer
 }
 
+func sendmail(mb bytes.Buffer) {
+  fmt.Println("Mail sent:")
+  fmt.Printf("%s", mb)
+}
+
 // route handler
 func getSubmission(w http.ResponseWriter, r *http.Request) {
-
-  fmt.Println("Received form submission\n")
-
+  // move this out to debug function
   if debug {
     debugFormData(r)
   }
+
+  fmt.Println("Received form submission for default form\n")
   r.ParseForm()
-  io.WriteString(w, "Form submitted, I promise!!\n")
+  formData := r.PostForm
+  // if validateInput(formData) {
+  // text := templateText(formData)
+  pretty := getPrettyFormData(formData)
+  mailBody := pretty
+  sendmail(mailBody)
+  io.WriteString(w, "\n")
 }
 
 func main() {
