@@ -44,7 +44,7 @@ func sendmail(body bytes.Buffer) {
                 "From: forms@madways.de\n" +
                 "Subject: Form ausjefüddelt!" +
                 "\n\n" +
-                "Foobar")
+                body.String())
 
   smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", email, msg)
   fmt.Println("Mail sent")
@@ -60,8 +60,8 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Received form submission for default form")
   r.ParseForm()
   formData := r.PostForm
-  // if validateInput(formData) {
-  // text := templateText(formData)
+  // TODO: if validateInput(formData) {
+  // TODO: text := templateText(formData)
   pretty := getPrettyFormData(formData)
   mailBody := pretty
   sendmail(mailBody)
