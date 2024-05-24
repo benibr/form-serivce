@@ -5,6 +5,7 @@ import (
   "strconv"
   "os"
   "io"
+  "bytes"
   "net/http"
 )
 
@@ -21,14 +22,27 @@ func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
 }
 
+func getPrettyFormData(r *http.Request) (bytes.Buffer) {
+  var buffer bytes.Buffer 
+  for key, value := range(r.PostForm) {
+    if debug {
+      fmt.Print("Found form data: ")
+      fmt.Printf("%v: %v\n", key, value)
+    }
+    buffer.WriteString(fmt.Sprintf("%v: %v\n", key, value))
+  }
+  return buffer
+}
+
+// route handler
 func getSubmission(w http.ResponseWriter, r *http.Request) {
+
   fmt.Println("Received form submission\n")
+
   if debug {
     debugFormData(r)
   }
   r.ParseForm()
-  fmt.Println(r.PostForm)
-
   io.WriteString(w, "Form submitted, I promise!!\n")
 }
 
