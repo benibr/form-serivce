@@ -8,11 +8,12 @@ import (
   "bytes"
   "net/http"
   "net/url"
+  "net/smtp"
 )
 
 // globals
 var debug bool = false
-var email string = "braunger@madways.de"
+var email string
 
 func debugFormData(r *http.Request) {
   fmt.Printf("DEBUG: Method: %v\n", r.Method)
@@ -38,9 +39,22 @@ func getPrettyFormData(v url.Values) (bytes.Buffer) {
   return buffer
 }
 
-func sendmail(mb bytes.Buffer) {
-  fmt.Println("Mail sent:")
-  fmt.Println(mb.String())
+func sendmail(body bytes.Buffer) {
+  smtp, err := smtp.Dial("mail.madways.de:25")
+  if err != nil {
+      fmt.Println(err)
+  }
+  defer smtp.Close()
+  smtp.Mail("forms@madways.de")
+  smtp.Rcpt(email)
+  smtpData, err := smtp.Data()
+  defer smtpData.Close()
+  if _, err = body.WriteTo(smtpData); err != nil {
+    fmt.Printf("%v", err)
+    //log.Fatal(err)
+  }
+
+  fmt.Println("Mail sent")
 }
 
 // route handler
