@@ -17,12 +17,6 @@ var debug bool = false
 var email []string
 var logger *slog.Logger
 
-func debugLog(strings ...string) {
-  if debug {
-    logger.Debug(strings[0], strings[1], strings[2])
-  }
-}
-
 func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
   email    = append(email, os.Getenv("FORM_SERVICE_EMAIL"))
@@ -31,7 +25,7 @@ func getEnvConfig() {
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
   var buffer bytes.Buffer 
   for key, value := range(v) {
-    debugLog("Found form data: ", fmt.Sprintf("%v", key), fmt.Sprintf("%v", value))
+    logger.Debug("Found form data: ", fmt.Sprintf("%v", key), fmt.Sprintf("%v", value))
     buffer.WriteString(fmt.Sprintf("%v: %v\n", key, value))
   }
   return buffer
@@ -51,7 +45,7 @@ func sendmail(body bytes.Buffer) {
 func getSubmission(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Received form submission for default form")
   formData := r.PostForm
-  debugLog(fmt.Sprintf("%v",formData))
+  logger.Debug(fmt.Sprintf("%v",formData))
   r.ParseForm()
   // TODO: if validateInput(formData) {
   // TODO: text := templateText(formData)
@@ -62,10 +56,15 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+  logLevel := new(slog.LevelVar)
+  logLevel.Set(slog.LevelInfo)
+  logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
   logger.Info("form-service starting")
 
   getEnvConfig()
+  if debug {
+    logLevel.Set(slog.LevelDebug)
+  }
 
   http.HandleFunc("/submit", getSubmission)
   http.ListenAndServe(":3333", nil)
