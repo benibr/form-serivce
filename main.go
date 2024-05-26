@@ -17,10 +17,10 @@ var debug bool = false
 var email []string
 var logger *slog.Logger
 
-func debugFormData(r *http.Request) {
-  fmt.Printf("DEBUG: Method: %v\n", r.Method)
-  fmt.Print("DEBUG: Full form object:")
-  fmt.Printf(" %v\n\n", r)
+func debugLog(msg string) {
+  if debug {
+    logger.Debug(msg)
+  }
 }
 
 func getEnvConfig() {
@@ -54,14 +54,10 @@ func sendmail(body bytes.Buffer) {
 
 // route handler
 func getSubmission(w http.ResponseWriter, r *http.Request) {
-  // move this out to debug function
-  if debug {
-    debugFormData(r)
-  }
-
   fmt.Println("Received form submission for default form")
-  r.ParseForm()
   formData := r.PostForm
+  debugLog(fmt.Sprintf("%v",formData))
+  r.ParseForm()
   // TODO: if validateInput(formData) {
   // TODO: text := templateText(formData)
   pretty := getPrettyFormData(formData)
@@ -72,6 +68,7 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
 
 func main() {
   logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+  logger.Info("form-service starting")
 
   getEnvConfig()
 
