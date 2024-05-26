@@ -40,11 +40,11 @@ func sendmail(body bytes.Buffer) {
                 body.String())
 
   smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", email, msg)
-  fmt.Println("Mail sent")
+  logger.Info("Mail sent")
 }
 
 func getSubmission(w http.ResponseWriter, r *http.Request) {
-  fmt.Println("Received form submission for default form")
+  logger.Info("Received form submission for default form")
   formData := r.PostForm
   logger.Debug(fmt.Sprintf("%v",formData))
   r.ParseForm()
