@@ -20,6 +20,7 @@ var logger *slog.Logger
 func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
   email    = append(email, os.Getenv("FORM_SERVICE_EMAIL"))
+  //logger.Debug("Option set", "FORM_SERVICE_EMAIL", email)
 }
 
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
