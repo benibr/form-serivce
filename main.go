@@ -9,11 +9,13 @@ import (
   "net/http"
   "net/url"
   "net/smtp"
+  "log/slog"
 )
 
 // globals
 var debug bool = false
 var email []string
+var logger *slog.Logger
 
 func debugFormData(r *http.Request) {
   fmt.Printf("DEBUG: Method: %v\n", r.Method)
@@ -69,6 +71,8 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+  logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
   getEnvConfig()
 
   http.HandleFunc("/submit", getSubmission)
