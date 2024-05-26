@@ -17,9 +17,9 @@ var debug bool = false
 var email []string
 var logger *slog.Logger
 
-func debugLog(msg string) {
+func debugLog(strings ...string) {
   if debug {
-    logger.Debug(msg)
+    logger.Debug(strings[0], strings[1], strings[2])
   }
 }
 
@@ -31,11 +31,7 @@ func getEnvConfig() {
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
   var buffer bytes.Buffer 
   for key, value := range(v) {
-    if debug {
-      // move this to debug funtion
-      fmt.Print("Found form data: ")
-      fmt.Printf("%v: %v\n", key, value)
-    }
+    debugLog("Found form data: ", fmt.Sprintf("%v", key), fmt.Sprintf("%v", value))
     buffer.WriteString(fmt.Sprintf("%v: %v\n", key, value))
   }
   return buffer
@@ -52,7 +48,6 @@ func sendmail(body bytes.Buffer) {
   fmt.Println("Mail sent")
 }
 
-// route handler
 func getSubmission(w http.ResponseWriter, r *http.Request) {
   fmt.Println("Received form submission for default form")
   formData := r.PostForm
