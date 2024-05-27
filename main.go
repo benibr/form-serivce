@@ -19,7 +19,7 @@ var email []string
 func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
   email    = append(email, os.Getenv("FORM_SERVICE_EMAIL"))
-  //slog.Debug("Option set", "FORM_SERVICE_EMAIL", email)
+  //slog.Debug("Option set", "FORM_SERVICE_EMAIL", email) //FIXME: this seg faults
 }
 
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
@@ -38,7 +38,11 @@ func sendmail(body bytes.Buffer) {
                 "\n\n" +
                 body.String())
 
-  smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", email, msg)
+  _, err := smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", email, msg)
+  if err != nil {
+    slog.Error(fmt.Sprintf("Cannot send mail to %v", email))
+    slog.Error(fmt.Sprintf("%v", err))
+  }
   slog.Info("Mail sent")
 }
 
@@ -68,5 +72,9 @@ func main() {
   }
 
   http.HandleFunc("/submit", getSubmission)
-  http.ListenAndServe(":3333", nil)
+  _, err := http.ListenAndServe(":3333", nil)
+  if err != nil {
+    slog.Error("Cannot open TCP listener on port 3333")
+    slog.Error(fmt.Sprintf("%v", err))
+  }
 }
