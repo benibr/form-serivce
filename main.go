@@ -12,14 +12,29 @@ import (
   "log/slog"
 )
 
+// exit codes
+const ecNoMail = 3
+
 // globals
 var debug bool = false
 var email []string
+var logLevel = new(slog.LevelVar)
 
 func getEnvConfig() {
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
+  if debug {
+    logLevel.Set(slog.LevelDebug)
+    slog.Debug("Option set", "FORM_SERVICE_DEBUG", debug)
+  }
+
   email    = append(email, os.Getenv("FORM_SERVICE_EMAIL"))
-  //slog.Debug("Option set", "FORM_SERVICE_EMAIL", email) //FIXME: this seg faults
+  if len(email) == 0 {
+    slog.Debug("Option set", "FORM_SERVICE_EMAIL", email)
+  } else {
+    slog.Error("Env var FORM_SERVICE_EMAIL not set, cannot continue!")
+    os.Exit(ecNoMail)
+  }
+
 }
 
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
@@ -42,8 +57,9 @@ func sendmail(body bytes.Buffer) {
   if err != nil {
     slog.Error(fmt.Sprintf("Cannot send mail to %v", email))
     slog.Error(fmt.Sprintf("%v", err))
+  } else {
+    slog.Info("Mail sent")
   }
-  slog.Info("Mail sent")
 }
 
 func getSubmission(w http.ResponseWriter, r *http.Request) {
@@ -60,16 +76,12 @@ func getSubmission(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-  logLevel := new(slog.LevelVar)
   logLevel.Set(slog.LevelInfo)
   logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
   slog.SetDefault(logger)
   slog.Info("form-service starting")
 
   getEnvConfig()
-  if debug {
-    logLevel.Set(slog.LevelDebug)
-  }
 
   http.HandleFunc("/submit", getSubmission)
   err := http.ListenAndServe(":3333", nil)
