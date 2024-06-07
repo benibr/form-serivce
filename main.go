@@ -13,7 +13,7 @@ import (
 )
 
 // exit codes
-const ecNoMail = 3
+const ecMissingParam = 3
 
 // globals
 var debug bool = false
@@ -21,20 +21,22 @@ var email []string
 var logLevel = new(slog.LevelVar)
 
 func getEnvConfig() {
+  //debug
   debug, _ = strconv.ParseBool(os.Getenv("FORM_SERVICE_DEBUG"))
   if debug {
     logLevel.Set(slog.LevelDebug)
     slog.Debug("Option set", "FORM_SERVICE_DEBUG", debug)
   }
 
-  email    = append(email, os.Getenv("FORM_SERVICE_EMAIL"))
-  if len(email) == 0 {
-    slog.Debug("Option set", "FORM_SERVICE_EMAIL", email)
-  } else {
+  //email
+  var env_email string = os.Getenv("FORM_SERVICE_EMAIL")
+  if len(env_email) == 0 {
     slog.Error("Env var FORM_SERVICE_EMAIL not set, cannot continue!")
-    os.Exit(ecNoMail)
+    os.Exit(ecMissingParam)
+  } else {
+    email = append(email, env_email)
   }
-
+  slog.Debug("Option set", "FORM_SERVICE_EMAIL", email)
 }
 
 func getPrettyFormData(v url.Values) (bytes.Buffer) {
@@ -58,7 +60,7 @@ func sendmail(body bytes.Buffer) {
     slog.Error(fmt.Sprintf("Cannot send mail to %v", email))
     slog.Error(fmt.Sprintf("%v", err))
   } else {
-    slog.Info("Mail sent")
+    slog.Info(fmt.Sprintf("Mail sent to %v", email))
   }
 }
 
