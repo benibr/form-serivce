@@ -68,7 +68,11 @@ func getSubmission(response http.ResponseWriter, request *http.Request) {
   slog.Info("Received form submission for default form")
   formData := request.PostForm
   slog.Debug(fmt.Sprintf("%v",formData))
-  request.ParseForm()
+  err := request.ParseForm()
+  if err != nil {
+    slog.Error("Cannot parse form data!")
+    slog.Error(fmt.Sprintf("Error was: %v", err))
+  }
   // TODO: if validateInput(formData) {
   // TODO: text := templateText(formData)
   pretty := getPrettyFormData(formData)
