@@ -64,17 +64,17 @@ func sendmail(body bytes.Buffer) {
   }
 }
 
-func getSubmission(w http.ResponseWriter, r *http.Request) {
+func getSubmission(response http.ResponseWriter, request *http.Request) {
   slog.Info("Received form submission for default form")
-  formData := r.PostForm
+  formData := request.PostForm
   slog.Debug(fmt.Sprintf("%v",formData))
-  r.ParseForm()
+  request.ParseForm()
   // TODO: if validateInput(formData) {
   // TODO: text := templateText(formData)
   pretty := getPrettyFormData(formData)
   mailBody := pretty
   sendmail(mailBody)
-  io.WriteString(w, "You message has been sent! Thank you for writing to us.")
+  io.WriteString(response, "You message has been sent! Thank you for writing to us.")
 }
 
 func main() {
