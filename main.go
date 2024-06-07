@@ -38,7 +38,7 @@ func sendmail(body bytes.Buffer) {
                 "\n\n" +
                 body.String())
 
-  _, err := smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", email, msg)
+  err := smtp.SendMail("mail.madways.de:25", nil, "forms@madways.de", email, msg)
   if err != nil {
     slog.Error(fmt.Sprintf("Cannot send mail to %v", email))
     slog.Error(fmt.Sprintf("%v", err))
@@ -72,7 +72,7 @@ func main() {
   }
 
   http.HandleFunc("/submit", getSubmission)
-  _, err := http.ListenAndServe(":3333", nil)
+  err := http.ListenAndServe(":3333", nil)
   if err != nil {
     slog.Error("Cannot open TCP listener on port 3333")
     slog.Error(fmt.Sprintf("%v", err))
