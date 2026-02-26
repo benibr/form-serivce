@@ -43,7 +43,7 @@ func getPrettyFormData(v url.Values) bytes.Buffer {
 	var buffer bytes.Buffer
 	for key, value := range v {
 		slog.Debug("Found form data: ", fmt.Sprintf("%v", key), fmt.Sprintf("%v", value))
-		buffer.WriteString(fmt.Sprintf("%v: %v\n", key, value))
+		fmt.Fprintf(&buffer, "%v: %v\n", key, value)
 	}
 	return buffer
 }
